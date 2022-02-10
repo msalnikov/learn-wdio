@@ -1,0 +1,35 @@
+version: '3'
+services:
+  web:
+    container_name: realworld-web
+    restart: always
+    image: klamping/realworld-web
+    environment:
+      - APIURL=local
+    ports:
+      - "8080:8080"
+    depends_on:
+      - api
+  api:
+    container_name: realworld-api
+    restart: always
+    image: klamping/realworld-api
+    environment:
+      - NODE_ENV=production
+      - SECRET=hunter2
+      - MONGODB_URI=mongodb://mongo:27017/conduit
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo-seed
+  mongo-seed:
+    restart: on-failure
+    network_mode: host
+    image: klamping/realworld-mongo-seed
+    depends_on:
+      - mongo
+  mongo:
+    container_name: realworld-mongo
+    image: mongo
+    ports:
+      - "27017:27017"
