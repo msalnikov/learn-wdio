@@ -22,3 +22,23 @@ describe('Homepage', function () {
     });
 });
 
+const extraLargeTimeOut = 1800000;
+
+describe('Setup infrastructure', () => {
+    let originalTimeout;
+
+    beforeEach(function() {
+        originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = extraLargeTimeOut;
+    });
+
+    afterEach(function() {
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
+    });
+    
+    it('Update user roles', async () => {
+        await loginAsAdministrator();
+        await systemUsersPage.open();
+        await systemUsersPage.updateRoles();
+    }, extraLargeTimeOut);
+});
