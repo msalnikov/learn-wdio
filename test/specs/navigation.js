@@ -41,4 +41,34 @@ describe('Setup infrastructure', () => {
         await systemUsersPage.open();
         await systemUsersPage.updateRoles();
     }, extraLargeTimeOut);
+    
+    describe('Approval card screen', () => {
+
+	beforeAll(async () => {
+		await loginAsAdministrator();
+		await switchFromWebToApp();
+		await loginScreen.synchronize(TEST_DATA.LOGIN, TEST_DATA.PASSWORD);
+		await navigationMenu.openSection('Approvals');
+	});
+
+	beforeEach(async () => {
+		if (await Actions.isElementDisplayed(approvalScreen.detailTab)) {
+			await approvalScreen.returnToVisaList();
+		}
+		await approvalsScreen.openPendingTab();
+	});
+
+	it('all visa information is displayed on the card, BT-32001, RND-T13153', async () => {
+		const visaAuthor = 'Sup';
+		await visaUtils.createVisa('Contract', TEST_DATA.NUMBER, TEST_DATA.NUMBER, TEST_DATA.LOGIN,
+			TEST_DATA.OBJECTIVE);
+		await approvalsScreen.pullToRefresh();
+		await approvalsScreen.selectVisaByTitle('Contract', TEST_DATA.NUMBER);
+		await Waits.waitForElementVisible(approvalScreen.approveButton);
+		expect(await Actions.isElementDisplayed(approvalScreen.approvalObjectiveField)).toEqual(true);
+		expect(await approvalScreen.isElementWithAccessibilityIdDisplayed(TEST_DATA.OBJECTIVE)).toEqual(true);
+		expect(await Actions.isElementDisplayed(approvalScreen.authorField)).toEqual(true);
+		expect(await approvalScreen.isElementWithAccessibilityIdDisplayed(visaAuthor)).toEqual(true);
+		expect(await Actions.isElementDisplayed(approvalScreen.dateField)).toEqual(true);
+	});
 });
